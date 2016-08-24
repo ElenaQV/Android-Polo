@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 /**
  * Created by Elena Quintero on 8/23/2016.
@@ -30,27 +31,27 @@ public class EditFraseActivity extends Activity {
     EditText txtFrase;
     EditText txtTipoFrase;
     EditText txtRating;
+
     Button btnSave;
     Button btnDelete;
 
     String idFrase;
 
-    // Progress Dialog
+
     private ProgressDialog pDialog;
 
-    // JSON parser class
+
     JSONParser jsonParser = new JSONParser();
 
-    // single product url
+
     private static final String url_frase_detials = "http://192.168.1.70/frases/get_frase_details.php";
 
-    // url to update product
+
     private static final String url_update_frase = "http://192.168.1.70/frases/update_frase.php";
 
-    // url to delete product
     private static final String url_delete_frase = "http://192.168.1.70/frases/delete_frase.php";
 
-    // JSON Node names
+
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_FRASE = "frase";
     private static final String TAG_IDFRASE = "idFrase";
@@ -59,6 +60,7 @@ public class EditFraseActivity extends Activity {
     private static final String TAG_TIPOFRASE = "tipoFrase";
     private static final String TAG_RATING = "rating";
 
+    JSONArray fraseObj = null;
 
     String autor ;
     String frase ;
@@ -70,7 +72,7 @@ public class EditFraseActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_frase);
 
-        // save button
+
         btnSave = (Button) findViewById(R.id.btnSave);
         btnDelete = (Button) findViewById(R.id.btnDelete);
 
@@ -79,8 +81,9 @@ public class EditFraseActivity extends Activity {
 
         idFrase = i.getStringExtra(TAG_IDFRASE);
 
+        new GetFraseDetails().execute();
 
-        new GetProductDetails().execute();
+
 
 
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -105,22 +108,28 @@ public class EditFraseActivity extends Activity {
     }
 
 
-    class GetProductDetails extends AsyncTask<String, String, String> {
+    class GetFraseDetails extends AsyncTask<String, String, String> {
 
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(EditFraseActivity.this);
-            pDialog.setMessage("Cargando  los detalles del  producto");
+            pDialog.setMessage("Cargando  los detalles de la frase");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
+
         }
 
 
-        protected String doInBackground(String... params) {
+        protected String doInBackground(String... args) {
 
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("idFrase", idFrase));
+
+
+           final JSONObject json = jsonParser.makeHttpRequest( url_frase_detials, "GET", params);
 
             runOnUiThread(new Runnable() {
                 public void run() {
@@ -128,38 +137,27 @@ public class EditFraseActivity extends Activity {
                     int success;
                     try {
 
-                        List<NameValuePair> params = new ArrayList<NameValuePair>();
-                        params.add(new BasicNameValuePair("idFrase", idFrase));
 
-
-                        JSONObject json = jsonParser.makeHttpRequest(
-                                url_frase_detials, "GET", params);
-
-
-                        Log.d("Detalles de producto", json.toString());
+                        Log.d("Detalles frase", json.toString());
 
 
                         success = json.getInt(TAG_SUCCESS);
                         if (success == 1) {
 
-                            JSONArray fraseObj = json
-                                    .getJSONArray(TAG_FRASE);
+                             fraseObj = json.getJSONArray(TAG_FRASE); // JSON Array
 
 
-                            JSONObject product = fraseObj.getJSONObject(0);
-
+                            JSONObject frase = fraseObj.getJSONObject(0);
 
                             txtAutor = (EditText) findViewById(R.id.inputAutor);
                             txtFrase = (EditText) findViewById(R.id.inputFrase);
                             txtTipoFrase= (EditText) findViewById(R.id.inputTipoFrase);
                             txtRating= (EditText) findViewById(R.id.inputRating);
 
-
-                            txtAutor.setText(product.getString(TAG_AUTOR));
-                            txtFrase.setText(product.getString(TAG_FRASET));
-                            txtTipoFrase.setText(product.getString(TAG_TIPOFRASE));
-                            txtRating.setText(product.getString(TAG_RATING));
-
+                            txtAutor.setText(frase.getString(TAG_AUTOR));
+                            txtFrase.setText(frase.getString(TAG_FRASET));
+                            txtTipoFrase.setText(frase.getString(TAG_TIPOFRASE));
+                            txtRating.setText(frase.getString(TAG_RATING));
                         }else{
 
                         }
@@ -191,6 +189,11 @@ public class EditFraseActivity extends Activity {
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(true);
             pDialog.show();
+
+            autor = txtAutor.getText().toString();
+            frase = txtFrase.getText().toString();
+            tipoFrase = txtTipoFrase.getText().toString();
+            rating = txtRating.getText().toString();
         }
 
 
@@ -198,7 +201,7 @@ public class EditFraseActivity extends Activity {
 
 
 
-            // Building Parameters
+
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair(TAG_IDFRASE, idFrase));
             params.add(new BasicNameValuePair(TAG_AUTOR, autor));
@@ -214,13 +217,13 @@ public class EditFraseActivity extends Activity {
                 int success = json.getInt(TAG_SUCCESS);
 
                 if (success == 1) {
-                    // successfully updated
+
                     Intent i = getIntent();
-                    // send result code 100 to notify about product update
+
                     setResult(100, i);
                     finish();
                 } else {
-                    // failed to update product
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -249,10 +252,6 @@ public class EditFraseActivity extends Activity {
             pDialog.setCancelable(true);
             pDialog.show();
 
-             autor = txtAutor.getText().toString();
-             frase = txtFrase.getText().toString();
-             tipoFrase = txtTipoFrase.getText().toString();
-             rating = txtRating.getText().toString();
         }
 
         protected String doInBackground(String... args) {
@@ -289,7 +288,7 @@ public class EditFraseActivity extends Activity {
 
 
         protected void onPostExecute(String file_url) {
-            // dismiss the dialog once product deleted
+
             pDialog.dismiss();
 
         }

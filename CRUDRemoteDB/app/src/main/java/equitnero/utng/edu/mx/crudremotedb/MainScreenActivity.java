@@ -16,7 +16,7 @@ public class MainScreenActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
 
-        // Buttons
+
         btnViewFrases = (Button) findViewById(R.id.btnViewFrases);
         btnNewFrase = (Button) findViewById(R.id.btnNewFrase);
 

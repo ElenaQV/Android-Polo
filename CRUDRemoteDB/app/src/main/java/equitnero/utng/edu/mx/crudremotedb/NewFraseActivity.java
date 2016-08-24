@@ -23,7 +23,7 @@ import android.widget.EditText;
  */
 public class NewFraseActivity extends Activity {
 
-    // Progress Dialog
+
     private ProgressDialog pDialog;
 
     JSONParser jsonParser = new JSONParser();
@@ -48,16 +48,16 @@ public class NewFraseActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_frase);
 
-        // Edit Text
+
         inputAutor = (EditText) findViewById(R.id.inputAutor);
         inputFrase = (EditText) findViewById(R.id.inputFrase);
         inputTipoFrase = (EditText) findViewById(R.id.inputTipoFrase);
         inputRating = (EditText) findViewById(R.id.inputRating);
 
-        // Create button
+
         Button btnCreateFrase = (Button) findViewById(R.id.btnCreateFrase);
 
-        // button click event
+
         btnCreateFrase.setOnClickListener(new View.OnClickListener() {
 
             @Override
